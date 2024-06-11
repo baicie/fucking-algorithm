@@ -1,0 +1,96 @@
+/*
+ * @lc app=leetcode.cn id=707 lang=cpp
+ *
+ * [707] 设计链表
+ */
+
+// @lc code=start
+struct ListNode
+{
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+class MyLinkedList
+{
+public:
+    int size;
+    ListNode *head;
+
+    MyLinkedList()
+    {
+        this->size = 0;
+        this->head = new ListNode(0);
+    }
+
+    int get(int index)
+    {
+        if (index < 0 || index >= this->size)
+            return -1;
+        ListNode *temp = this->head->next; // Skip dummy node
+        for (int i = 0; i < index; i++)
+        {
+            temp = temp->next;
+        }
+        return temp->val;
+    }
+
+    void addAtHead(int val)
+    {
+        this->addAtIndex(0, val);
+    }
+
+    void addAtTail(int val)
+    {
+        this->addAtIndex(size, val);
+    }
+
+    void addAtIndex(int index, int val)
+    {
+        if (index > size)
+            return;
+        index = index > 0 ? index : 0;
+        int _index = 0;
+        size++;
+        ListNode *temp = head;
+
+        ListNode *_newNode = new ListNode(val);
+        for (int i = 0; i < index; i++)
+        {
+            temp = temp->next;
+        }
+
+        _newNode->next = temp->next;
+        temp->next = _newNode;
+    }
+
+    void deleteAtIndex(int index)
+    {
+        if (index < 0 || index >= this->size)
+            return;
+        size--;
+        int _index = 0;
+        ListNode *temp = head;
+        while (_index < index)
+        {
+            temp = temp->next;
+            _index++;
+        }
+        ListNode *p = temp->next;
+        temp->next = temp->next->next;
+        delete p;
+    }
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
+ */
+// @lc code=end
