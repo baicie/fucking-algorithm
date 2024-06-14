@@ -1,0 +1,51 @@
+/*
+ * @lc app=leetcode.cn id=142 lang=cpp
+ *
+ * [142] 环形链表 II
+ */
+
+// @lc code=start
+// struct ListNode
+// {
+//     int val;
+//     ListNode *next;
+//     ListNode() : val(0), next(nullptr) {}
+//     ListNode(int x) : val(x), next(nullptr) {}
+//     ListNode(int x, ListNode *next) : val(x), next(next) {}
+// };
+class Solution
+{
+public:
+    ListNode *detectCycle(ListNode *head)
+    {
+        // a环前 b环内 n多走的圈数
+        // f=s+nb f=2s(每次多走一步)
+        // 结论 s=nb f=2nb
+
+        // 设s走到环入口步数为k
+        // 则k=a+nb
+        // 当前s走了nb 则走a
+        // 新的指针从头开始cur=0 s=nb
+        // cur+a nb+a 都走到入口 相等
+        ListNode *fast = head;
+        ListNode *slow = head;
+
+        while (true)
+        {
+            if (fast == nullptr || fast->next == nullptr)
+                return nullptr;
+            fast = fast->next->next;
+            slow = slow->next;
+            if (fast == slow)
+                break;
+        }
+        fast = head;
+        while (fast != slow)
+        {
+            fast = fast->next;
+            slow = slow->next;
+        }
+        return fast;
+    }
+};
+// @lc code=end
