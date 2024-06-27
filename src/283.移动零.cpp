@@ -16,6 +16,7 @@ public:
         int slow = 0, fast = 0, length = nums.size();
         while (fast < length)
         {
+            // 如果值有效 不为0 则将快慢置换 慢右移
             if (nums[fast])
             {
                 swap(nums[slow++], nums[fast]);

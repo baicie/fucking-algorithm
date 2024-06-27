@@ -19,14 +19,19 @@ class Solution
 public:
     ListNode *reverseList(ListNode *head)
     {
+        // 前一个结点 与 当前节点
         ListNode *pre = NULL;
         ListNode *cur = head;
 
         while (cur)
         {
+            // 保存next节点
             ListNode *temp = cur->next;
+            // 当前指向上一个
             cur->next = pre;
+            // 右移
             pre = cur;
+            // 右移
             cur = temp;
         }
         return pre;
