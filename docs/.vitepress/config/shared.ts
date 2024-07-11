@@ -3,6 +3,7 @@ import { search } from "./zh";
 
 export const shared = defineConfig({
   title: "algorithm",
+  base: "/fucking-algorithm/",
 
   lastUpdated: true,
   cleanUrls: true,
