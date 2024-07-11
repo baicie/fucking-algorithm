@@ -1,0 +1,37 @@
+name: Publish to NPM registry
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.com/
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 9.3.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cpp to markdown
+        run: pnpm run cpp-md
+
+      - name: Build VitePress
+        run: pnpm run ci-docs
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vitepress/dist
