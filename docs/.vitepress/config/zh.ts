@@ -47,7 +47,7 @@ export const search: DefaultTheme.AlgoliaSearchOptions["locales"] = {
 };
 export const zh = defineConfig({
   lang: "zh",
-  description: "deft-reader",
+  description: "fucking-algorithm",
 
   themeConfig: {
     logo: "/logo.svg",

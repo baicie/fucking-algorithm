@@ -1,5 +1,4 @@
 import { defineConfig } from "vitepress";
-import { search } from "./zh";
 
 export const shared = defineConfig({
   title: "algorithm",
@@ -29,10 +28,10 @@ export const shared = defineConfig({
       "meta",
       {
         property: "og:title",
-        content: "deft-reader",
+        content: "fucking-algorithm",
       },
     ],
-    ["meta", { property: "og:site_name", content: "deft-reader" }],
+    ["meta", { property: "og:site_name", content: "fucking-algorithm" }],
     [
       "script",
       {
@@ -48,17 +47,7 @@ export const shared = defineConfig({
     logo: { src: "/logo.svg", width: 24, height: 24 },
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/baicie/deft-reader" },
+      { icon: "github", link: "https://github.com/baicie/fucking-algorithm" },
     ],
-
-    search: {
-      provider: "algolia",
-      options: {
-        appId: " ",
-        apiKey: " ",
-        indexName: "deft-reader",
-        locales: { ...search },
-      },
-    },
   },
 });

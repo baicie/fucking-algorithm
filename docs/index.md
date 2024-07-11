@@ -1,20 +1,15 @@
 ---
 layout: home
 
-title: deft-reader
+title: funny-algorithm
 titleTemplate: 玩呢
 
 hero:
-  name: deft-reader
+  name: funny-algorithm
   text: 玩呢
-  tagline: Get ready for a development environment that can finally catch up with you.
+  tagline: funny algorithm
   actions:
     - theme: brand
       text: Get Started
       link: /algorithm/algorithm
-
-features:
-  - icon: 💡
-    title: Instant Server Start
-    details: On demand file serving over native ESM, no bundling required!
 ---
