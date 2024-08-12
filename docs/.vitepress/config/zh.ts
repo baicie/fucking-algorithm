@@ -87,6 +87,10 @@ export const zh = defineConfig({
             text: "2.框架设计的核心要素",
             link: "/2.框架设计的核心要素",
           },
+          {
+            text: "3.Vue.js 3 的设计思路",
+            link: "/3.Vue.js 3 的设计思路",
+          },
         ],
       },
     },
