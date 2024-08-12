@@ -58,6 +58,11 @@ export const zh = defineConfig({
         link: "/algorithm/algorithm",
         activeMatch: "/algorithm/",
       },
+      {
+        text: "vuejs设计与实现",
+        link: "/vuejs-design",
+        activeMatch: "/vuejs-design/",
+      },
     ],
 
     sidebar: {
@@ -69,6 +74,15 @@ export const zh = defineConfig({
             link: "algorithm",
           },
           ...sidebar,
+        ],
+      },
+      "/vuejs-design/": {
+        base: "/vuejs-design/",
+        items: [
+          {
+            text: "1.权衡一下.md",
+            link: "/1.权衡一下.md",
+          },
         ],
       },
     },
