@@ -80,8 +80,12 @@ export const zh = defineConfig({
         base: "/vuejs-design/",
         items: [
           {
-            text: "1.权衡一下.md",
-            link: "/1.权衡一下.md",
+            text: "1.权衡一下",
+            link: "/1.权衡一下",
+          },
+          {
+            text: "2.框架设计的核心要素",
+            link: "/2.框架设计的核心要素",
           },
         ],
       },
