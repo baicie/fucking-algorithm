@@ -31,7 +31,7 @@ public:
         stk.push(root);
 
         int inorderIndex = 0;
-        for (int i = 0; i < preorder.size(); i++)
+        for (int i = 1; i < preorder.size(); i++)
         {
             TreeNode *node = stk.top();
             if (node->val != inorder[inorderIndex])
