@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let activeEffect
+        function effect(fn) {
+            // 当调用 effect 注册副作用函数时，将副作用函数 fn 赋值给 activeEffect
+            activeEffect = fn
+            fn()
+        }
+
+        const bucket = new Set()
+        const data = { text: 'hello' }
+
+        const obj = new Proxy(data, {
+            get(target, key) {
+                if (activeEffect) {
+                    bucket.add(activeEffect)
+                }
+                return target[key]
+            },
+            set(target, key, newVal) {
+                target[key] = newVal
+                bucket.forEach(fn => fn())
+                return true
+            }
+        })
+
+        effect(() => {
+            console.log('effect run');
+            document.body.innerHTML = obj.text
+        })
+
+        setTimeout(() => {
+            obj.text = 'hellow vue3'
+        })
+    </script>
+</body>
+
+</html>

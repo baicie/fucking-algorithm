@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const bucket = new WeakMap()
+        let activeEffect
+        const data = { text: 'hello', ok: true }
+        const obj = new Proxy(data, {
+            get(target, key) {
+                track(target, key)
+                return target[key]
+            },
+            set(target, key, newVal) {
+                target[key] = newVal
+                trigger(target, key)
+            }
+        })
+
+        function effect(fn) {
+            const effectFn = () => {
+                cleanup(effectFn)
+                // 当 effectFn 执行时，将其设置为当前激活的副作用函数
+                activeEffect = effectFn
+                fn()
+            }
+            // 这些deps和effectFn存在关联关系
+            effectFn.deps = []
+            effectFn()
+        }
+
+        function cleanup(effectFn) {
+            for (let i = 0; i < effectFn.deps.length; i++) {
+                const deps = effectFn.deps[i]
+                //删除所有存在关系的deps中的当前的effectFn
+                deps.delete(effectFn)
+            }
+            effectFn.deps.length = 0
+        }
+
+        function track(target, key) {
+            if (!activeEffect) return
+            // target映射
+            let depsMap = bucket.get(target)
+            if (!depsMap) {
+                bucket.set(target, (depsMap = new Map()))
+            }
+            // key - effect映射
+            let deps = depsMap.get(key)
+            if (!deps) {
+                depsMap.set(key, (deps = new Set()))
+            }
+            deps.add(activeEffect)
+            activeEffect.deps.push(deps)
+        }
+
+        function trigger(target, key) {
+            const depsMap = bucket.get(target)
+            if (!depsMap) return
+            const effects = depsMap.get(key)
+            const effectsToRun = new Set(effects)
+            effectsToRun.forEach(effectFn => effectFn())
+        }
+
+        effect(() => {
+            console.log('effect run');
+            document.body.innerHTML = obj.ok ? obj.text : 'not'
+        })
+
+        setTimeout(() => {
+            obj.ok = false
+            obj.text = 'hello vue3'
+        }, 3000)
+
+    </script>
+</body>
+
+</html>

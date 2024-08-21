@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const bucket = new WeakMap()
+        let activeEffect
+        const effectStack = []
+        const data = { foo: 0 }
+        const obj = new Proxy(data, {
+            get(target, key) {
+                track(target, key)
+                return target[key]
+            },
+            set(target, key, newVal) {
+                target[key] = newVal
+                trigger(target, key)
+            }
+        })
+
+        function effect(fn) {
+            const effectFn = () => {
+                cleanup(effectFn)
+                activeEffect = effectFn
+                effectStack.push(effectFn)
+                fn()
+                effectStack.pop()
+                activeEffect = effectStack[effectStack.length - 1]
+            }
+            // 这些deps和effectFn存在关联关系
+            effectFn.deps = []
+            effectFn()
+        }
+
+        function cleanup(effectFn) {
+            for (let i = 0; i < effectFn.deps.length; i++) {
+                const deps = effectFn.deps[i]
+                //删除所有存在关系的deps中的当前的effectFn
+                deps.delete(effectFn)
+            }
+            effectFn.deps.length = 0
+        }
+
+        function track(target, key) {
+            if (!activeEffect) return
+            // target映射
+            let depsMap = bucket.get(target)
+            if (!depsMap) {
+                bucket.set(target, (depsMap = new Map()))
+            }
+            // key - effect映射
+            let deps = depsMap.get(key)
+            if (!deps) {
+                depsMap.set(key, (deps = new Set()))
+            }
+            deps.add(activeEffect)
+            activeEffect.deps.push(deps)
+        }
+
+        function trigger(target, key) {
+            const depsMap = bucket.get(target)
+            if (!depsMap) return
+            const effects = depsMap.get(key)
+            const effectsToRun = new Set(effects)
+            effectsToRun.forEach(effectFn => effectFn())
+        }
+
+        // obj.foo++被track收集  +1 赋值的时候相当于做了一次set的操作会重新出发effectFn
+        // 相当于在effectFn中改变依赖的值 先读取收集 在做更改的时候出发trigger 会重新执行effectFn函数 在重复上述步骤
+        // 因为当前tack与trigger的副作用函数为同一个activeEffect 则在trigger中增加判断 
+        // 如果 trigger 触发执行的副作用函数与当前正在执行的副作用函数相同，则不触发执行
+        // 如果相同意味着在effect中同时进行了读取和修改
+        // effect函数在只有一个的时候tack执行完毕会将activeEffect置为undefined所以后续触发effect不会与activeEffect相同
+        debugger
+        effect(() => {
+            console.log('effect', obj.foo);
+            // trigger  track
+            obj.foo = obj.foo + 1
+        })
+        // obj.foo++
+    </script>
+</body>
+
+</html>

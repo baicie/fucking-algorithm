@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const bucket = new WeakMap()
+        let activeEffect
+        const effectStack = []
+        const data = { text: 'hello', ok: true }
+        const obj = new Proxy(data, {
+            get(target, key) {
+                track(target, key)
+                return target[key]
+            },
+            set(target, key, newVal) {
+                target[key] = newVal
+                trigger(target, key)
+            }
+        })
+
+        function effect(fn) {
+            const effectFn = () => {
+                cleanup(effectFn)
+                activeEffect = effectFn
+                effectStack.push(effectFn)
+                fn()
+                effectStack.pop()
+                activeEffect = effectStack[effectStack.length - 1]
+            }
+            // 这些deps和effectFn存在关联关系
+            effectFn.deps = []
+            effectFn()
+        }
+
+        function cleanup(effectFn) {
+            for (let i = 0; i < effectFn.deps.length; i++) {
+                const deps = effectFn.deps[i]
+                //删除所有存在关系的deps中的当前的effectFn
+                deps.delete(effectFn)
+            }
+            effectFn.deps.length = 0
+        }
+
+        function track(target, key) {
+            if (!activeEffect) return
+            // target映射
+            let depsMap = bucket.get(target)
+            if (!depsMap) {
+                bucket.set(target, (depsMap = new Map()))
+            }
+            // key - effect映射
+            let deps = depsMap.get(key)
+            if (!deps) {
+                depsMap.set(key, (deps = new Set()))
+            }
+            deps.add(activeEffect)
+            activeEffect.deps.push(deps)
+        }
+
+        function trigger(target, key) {
+            const depsMap = bucket.get(target)
+            if (!depsMap) return
+            const effects = depsMap.get(key)
+            const effectsToRun = new Set(effects)
+            effectsToRun.forEach(effectFn => effectFn())
+        }
+        let temp1, temp2
+        effect(() => {
+            console.log('1 run');
+            effect(() => {
+                console.log('2 run');
+                temp1 = obj.ok
+            })
+            temp2 = obj.text
+            // obj.text = 'new lez'
+        })
+    </script>
+</body>
+
+</html>
