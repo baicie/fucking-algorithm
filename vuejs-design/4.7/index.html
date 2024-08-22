@@ -24,7 +24,7 @@
             }
         })
 
-        function effect(fn) {
+        function effect(fn, options = {}) {
             const effectFn = () => {
                 cleanup(effectFn)
                 activeEffect = effectFn
@@ -33,6 +33,7 @@
                 effectStack.pop()
                 activeEffect = effectStack[effectStack.length - 1]
             }
+            effectFn.options = options
             // 这些deps和effectFn存在关联关系
             effectFn.deps = []
             effectFn()
@@ -67,28 +68,33 @@
             const depsMap = bucket.get(target)
             if (!depsMap) return
             const effects = depsMap.get(key)
+
             const effectsToRun = new Set()
             effects && effects.forEach(effectFn => {
                 if (activeEffect !== effectFn) {
-                    effectsToRun.push(effectFn)
+                    effectsToRun.add(effectFn)
                 }
             })
-            effectsToRun.forEach(effectFn => effectFn())
+            effectsToRun.forEach(effectFn => {
+                if (effectFn.options.scheduler) {
+                    effectFn.options.scheduler(effectFn)
+                } else {
+                    effectFn()
+                }
+            })
         }
 
-        // obj.foo++被track收集  +1 赋值的时候相当于做了一次set的操作会重新出发effectFn
-        // 相当于在effectFn中改变依赖的值 先读取收集 在做更改的时候出发trigger 会重新执行effectFn函数 在重复上述步骤
-        // 因为当前tack与trigger的副作用函数为同一个activeEffect 则在trigger中增加判断 
-        // 如果 trigger 触发执行的副作用函数与当前正在执行的副作用函数相同，则不触发执行
-
-        // 如果相同意味着在effect中同时进行了读取和修改
-        // effect函数在只有一个的时候tack执行完毕会将activeEffect置为undefined所以后续触发effect不会与activeEffect相同
-        debugger
         effect(() => {
-            // trigger  track
-            obj.foo = obj.foo + 1
+            console.log(obj.foo);
+        }, {
+            scheduler(fn) {
+                setTimeout(fn)
+            }
         })
-        // obj.foo++
+        obj.foo++
+
+        console.log('结束了');
+
     </script>
 </body>
 
