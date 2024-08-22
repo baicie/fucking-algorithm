@@ -50,7 +50,7 @@ public:
                 }
                 else
                 {
-                    count + 1;
+                    count = 1;
                 }
                 if (count == maxCount)
                 {
