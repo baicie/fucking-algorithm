@@ -91,6 +91,10 @@ export const zh = defineConfig({
             text: "3.Vue.js 3 的设计思路",
             link: "/3.Vue.js 3 的设计思路",
           },
+          {
+            text: "4.响应系统的作用与实现",
+            link: "/4.响应系统的作用与实现",
+          },
         ],
       },
     },
