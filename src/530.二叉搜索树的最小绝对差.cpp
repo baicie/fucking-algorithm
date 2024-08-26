@@ -6,6 +6,7 @@
 
 // @lc code=start
 #include <stack>
+#include <climits>
 using namespace std;
 // struct TreeNode
 // {
@@ -21,31 +22,29 @@ class Solution
 public:
     int getMinimumDifference(TreeNode *root)
     {
-        stack<TreeNode *> st;
-        TreeNode *cur = root;
-        TreeNode *pre = nullptr;
-        int result = __INT_MAX__;
-        while (cur != nullptr || !st.empty())
+        stack<TreeNode *> stack;
+        TreeNode *current = root;
+        int minDiff = INT_MAX;
+        int prev = -1;
+        while (!stack.empty() || current != nullptr)
         {
-            if (cur != nullptr)
-            {
-                st.push(cur);
-                cur = cur->left;
-            }
-            else
-            {
-                cur = st.top();
-                st.pop();
-                if (pre != nullptr)
-                {
-                    result = min(result, cur->val - pre->val);
-                }
-                pre = cur;
-                cur = cur->right;
-            }
             /* code */
+            while (current != nullptr)
+            {
+                /* code */
+                stack.push(current);
+                current = current->left;
+            }
+            current = stack.top();
+            stack.pop();
+            if (prev != -1)
+            {
+                minDiff = min(minDiff, current->val - prev);
+            }
+            prev = current->val;
+            current = current->right;
         }
-        return result;
+        return minDiff;
     }
 };
 // @lc code=end

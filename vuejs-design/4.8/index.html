@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const bucket = new WeakMap()
+        let activeEffect
+        const effectStack = []
+        const data = { foo: 1, bar: 2 }
+        const obj = new Proxy(data, {
+            get(target, key) {
+                track(target, key)
+                return target[key]
+            },
+            set(target, key, newVal) {
+                target[key] = newVal
+                trigger(target, key)
+            }
+        })
+
+        function effect(fn, options = {}) {
+            const effectFn = () => {
+                cleanup(effectFn)
+                activeEffect = effectFn
+                effectStack.push(effectFn)
+                const res = fn()
+                effectStack.pop()
+                activeEffect = effectStack[effectStack.length - 1]
+                return res
+            }
+            effectFn.options = options
+            // 这些deps和effectFn存在关联关系
+            effectFn.deps = []
+            if (!options.lazy) {
+                effectFn()
+            }
+            return effectFn
+        }
+
+        function cleanup(effectFn) {
+            for (let i = 0; i < effectFn.deps.length; i++) {
+                const deps = effectFn.deps[i]
+                //删除所有存在关系的deps中的当前的effectFn
+                deps.delete(effectFn)
+            }
+            effectFn.deps.length = 0
+        }
+
+        function track(target, key) {
+            if (!activeEffect) return
+            // target映射
+            let depsMap = bucket.get(target)
+            if (!depsMap) {
+                bucket.set(target, (depsMap = new Map()))
+            }
+            // key - effect映射
+            let deps = depsMap.get(key)
+            if (!deps) {
+                depsMap.set(key, (deps = new Set()))
+            }
+            deps.add(activeEffect)
+            activeEffect.deps.push(deps)
+        }
+
+        function trigger(target, key) {
+            const depsMap = bucket.get(target)
+            if (!depsMap) return
+            const effects = depsMap.get(key)
+
+            const effectsToRun = new Set()
+            effects && effects.forEach(effectFn => {
+                if (activeEffect !== effectFn) {
+                    effectsToRun.add(effectFn)
+                }
+            })
+            effectsToRun.forEach(effectFn => {
+                if (effectFn.options.scheduler) {
+                    effectFn.options.scheduler(effectFn)
+                } else {
+                    effectFn()
+                }
+            })
+        }
+
+        function computed(getter) {
+            let value
+            let dirty = true
+            const effectFn = effect(getter, {
+                lazy: true,
+                scheduler() {
+                    dirty = true
+                    trigger(obj, 'value')
+                }
+            })
+            const obj = {
+                get value() {
+                    console.log('dirty', dirty);
+                    if (dirty) {
+                        value = effectFn()
+                        dirty = false
+                    }
+                    track(obj, 'value')
+                    return value
+                }
+            }
+            return obj
+        }
+        // jobque
+        const jobQueue = new Set()
+        const p = Promise.resolve()
+        let isFlushing = false
+        function flushJob() {
+            if (isFlushing) return
+            isFlushing = true
+            p.then(() => {
+                jobQueue.forEach(job => job())
+            }).finally(() => {
+                isFlushing = false
+            })
+        }
+
+        const sumRes = computed(() => obj.foo + obj.bar)
+        // console.log(sumRes.value);
+        // console.log(sumRes.value);
+        // obj.foo++
+        // console.log(sumRes.value);
+        effect(() => {
+            console.log('sumRes', sumRes.value)
+        })
+        obj.foo++
+        // 本质上还是因为计算属性返回的obj没有和effect函数建立联系 通过手动增加联系
+        // 正在在effect中的响应式数据是通过proxy代理来建立联系的 当通过computed时需要手动增加联系
+    </script>
+</body>
+
+</html>
