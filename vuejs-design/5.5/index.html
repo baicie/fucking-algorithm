@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const bucket = new WeakMap()
+        let activeEffect
+        const ITERATE_KEY = Symbol()
+        const effectStack = []
+
+        function createReactive(obj, isShallow = false) {
+            return new Proxy(obj, {
+                get(target, key, receiver) {
+                    if (key === 'raw') {
+                        return target
+                    }
+                    const res = Reflect.get(target, key, receiver)
+                    track(target, key)
+                    if (isShallow) {
+                        return res
+                    }
+                    if (typeof res === "object" && res !== null) {
+                        return reactive(res)
+                    }
+                    return res
+                },
+                set(target, key, newVal, receiver) {
+                    const oldVal = target[key]
+                    const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
+                    const res = Reflect.set(target, key, newVal, receiver)
+                    if (target === receiver.raw) {
+                        if (oldVal !== newVal && (oldVal === oldVal || newVal === newVal)) {
+                            trigger(target, key, type)
+                        }
+                    }
+                    return res
+                },
+                has(target, key) {
+                    track(target, key)
+                    return Reflect.has(target, key)
+                },
+                ownKeys(target) {
+                    track(target, ITERATE_KEY)
+                    return Reflect.ownKeys(target)
+                },
+                deleteProperty(target, key) {
+                    const hasKey = Object.prototype.hasOwnProperty.call(target, key)
+                    const res = Reflect.deleteProperty(target, key)
+                    if (res && hasKey) {
+                        trigger(target, key, 'DELETE')
+                    }
+                    return res
+                }
+            })
+        }
+        function effect(fn, options = {}) {
+            const effectFn = () => {
+                cleanup(effectFn)
+                activeEffect = effectFn
+                effectStack.push(effectFn)
+                const res = fn()
+                effectStack.pop()
+                activeEffect = effectStack[effectStack.length - 1]
+                return res
+            }
+            effectFn.options = options
+            // 这些deps和effectFn存在关联关系
+            effectFn.deps = []
+            if (!options.lazy) {
+                effectFn()
+            }
+            return effectFn
+        }
+
+        function cleanup(effectFn) {
+            for (let i = 0; i < effectFn.deps.length; i++) {
+                const deps = effectFn.deps[i]
+                //删除所有存在关系的deps中的当前的effectFn
+                deps.delete(effectFn)
+            }
+            effectFn.deps.length = 0
+        }
+
+        function track(target, key) {
+            if (!activeEffect) return
+            // target映射
+            let depsMap = bucket.get(target)
+            if (!depsMap) {
+                bucket.set(target, (depsMap = new Map()))
+            }
+            // key - effect映射
+            let deps = depsMap.get(key)
+            if (!deps) {
+                depsMap.set(key, (deps = new Set()))
+            }
+            deps.add(activeEffect)
+            activeEffect.deps.push(deps)
+        }
+
+        function trigger(target, key, type) {
+            const depsMap = bucket.get(target)
+            if (!depsMap) return
+            const effects = depsMap.get(key)
+            const effectsToRun = new Set()
+            effects && effects.forEach(effectFn => {
+                if (activeEffect !== effectFn) {
+                    effectsToRun.add(effectFn)
+                }
+            })
+            if (type === 'ADD' || type === 'DELETE') {
+                const iterateEffects = depsMap.get(ITERATE_KEY)
+                iterateEffects && iterateEffects.forEach(effectFn => {
+                    if (activeEffect !== effectFn) {
+                        effectsToRun.add(effectFn)
+                    }
+                })
+            }
+            effectsToRun.forEach(effectFn => {
+                if (effectFn.options.scheduler) {
+                    effectFn.options.scheduler(effectFn)
+                } else {
+                    effectFn()
+                }
+            })
+        }
+
+        function reactive(obj) {
+            return createReactive(obj)
+        }
+
+        function shallowReactive(obj) {
+            return createReactive(obj, true)
+        }
+
+        const obj = shallowReactive({ foo: { bar: 1 } })
+        effect(() => {
+            console.log(obj.foo.bar);
+        })
+        obj.foo.bar = 2
+    </script>
+</body>
+
+</html>
