@@ -59,10 +59,15 @@ export const zh = defineConfig({
         activeMatch: "/algorithm/",
       },
       {
-        text: "vuejs设计与实现",
-        link: "/vuejs-design",
-        activeMatch: "/vuejs-design/",
+        text: "小册笔记",
+        link: "/brochure",
+        activeMatch: "/brochure/",
       },
+      // {
+      //   text: "vuejs设计与实现",
+      //   link: "/vuejs-design",
+      //   activeMatch: "/vuejs-design/",
+      // },
     ],
 
     sidebar: {
@@ -76,31 +81,40 @@ export const zh = defineConfig({
           ...sidebar,
         ],
       },
-      "/vuejs-design/": {
-        base: "/vuejs-design/",
+      "/brochure/": {
+        base: "/brochure/",
         items: [
           {
-            text: "1.权衡一下",
-            link: "/1.权衡一下",
-          },
-          {
-            text: "2.框架设计的核心要素",
-            link: "/2.框架设计的核心要素",
-          },
-          {
-            text: "3.Vue.js 3 的设计思路",
-            link: "/3.Vue.js 3 的设计思路",
-          },
-          {
-            text: "4.响应系统的作用与实现",
-            link: "/4.响应系统的作用与实现",
-          },
-          {
-            text: "5.非原始值的响应式方案",
-            link: "/5.非原始值的响应式方案",
+            text: "简介",
+            link: "index",
           },
         ],
       },
+      // "/vuejs-design/": {
+      //   base: "/vuejs-design/",
+      //   items: [
+      //     {
+      //       text: "1.权衡一下",
+      //       link: "/1.权衡一下",
+      //     },
+      //     {
+      //       text: "2.框架设计的核心要素",
+      //       link: "/2.框架设计的核心要素",
+      //     },
+      //     {
+      //       text: "3.Vue.js 3 的设计思路",
+      //       link: "/3.Vue.js 3 的设计思路",
+      //     },
+      //     {
+      //       text: "4.响应系统的作用与实现",
+      //       link: "/4.响应系统的作用与实现",
+      //     },
+      //     {
+      //       text: "5.非原始值的响应式方案",
+      //       link: "/5.非原始值的响应式方案",
+      //     },
+      //   ],
+      // },
     },
 
     footer: {

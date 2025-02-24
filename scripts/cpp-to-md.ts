@@ -27,7 +27,7 @@ export default
 `;
 const sidebars: SliderItem[] = [];
 
-const files = globSync("../src/*.cpp", {
+const files = globSync("../src/algorithm-cpp/*.cpp", {
   cwd: __dirname,
   onlyFiles: true,
   absolute: true,

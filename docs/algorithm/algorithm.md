@@ -1,1 +1,1 @@
-记录一下算法笔记
+algorithm hello
