@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Cpp to markdown
-        run: pnpm run cpp-md
+      # - name: Cpp to markdown
+      #   run: pnpm run cpp-md
 
       - name: Build VitePress
         run: pnpm run ci-docs
