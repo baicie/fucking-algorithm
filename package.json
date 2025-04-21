@@ -12,12 +12,14 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "algo": "node ./scripts/update_algorithm_progress.js"
+    "algo": "node ./scripts/update_algorithm_progress.js",
+    "daily": "node ./scripts/update_daily_study.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@inquirer/prompts": "^7.4.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.13.5",
     "fast-glob": "^3.3.3",
