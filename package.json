@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "docs": "pnpm --filter=docs run docs",
     "docs-build": "pnpm --filter=docs run docs-build",
@@ -10,7 +11,8 @@
     "cpp-md": "tsx ./scripts/cpp-to-md.ts",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "algo": "node ./scripts/update_algorithm_progress.js"
   },
   "keywords": [],
   "author": "",
