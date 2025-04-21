@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
 import { execSync } from "child_process";
+import { CliPrettify } from "markdown-table-prettify";
 
 // 配置项
 const ALGORITHM_MD_PATH = "algorithm.md";
@@ -74,18 +75,23 @@ function readAlgorithmMd() {
   return existingProblems;
 }
 
-// 使用Prettier格式化文件
-function formatWithPrettier(filePath) {
+// 使用markdown-table-prettify API格式化表格
+async function formatWithMarkdownTablePrettify(filePath) {
   try {
-    // 检查是否安装了prettier
-    execSync("npx prettier --version", { stdio: "ignore" });
+    // 读取文件内容
+    const content = readFileSync(filePath, "utf-8");
 
-    // 使用prettier格式化文件
-    execSync(`npx prettier --write "${filePath}"`, { stdio: "pipe" });
-    console.log(`文件已使用Prettier格式化: ${filePath}`);
+    const formattedContent = CliPrettify.prettify(content);
+    console.log(formattedContent);
+    // 写回文件
+    writeFileSync(filePath, formattedContent);
+
+    console.log(`表格已使用markdown-table-prettify API格式化: ${filePath}`);
     return true;
   } catch (error) {
-    console.log("警告: Prettier未安装或格式化失败，使用内置格式化功能");
+    console.log(
+      `警告: markdown-table-prettify API格式化失败: ${error.message}`
+    );
     return false;
   }
 }
@@ -146,7 +152,7 @@ function updateAlgorithmMd(newProblems) {
 }
 
 // 主函数
-function main() {
+async function main() {
   // 读取现有题目
   const existingProblems = readAlgorithmMd();
 
@@ -167,118 +173,17 @@ function main() {
   // 更新进度表
   const hasUpdated = updateAlgorithmMd(newProblems);
 
-  // 使用Prettier格式化文件
+  // 格式化文件
   if (
     hasUpdated ||
     (newProblems.length === 0 && existsSync(ALGORITHM_MD_PATH))
   ) {
-    const prettierSuccess = formatWithPrettier(ALGORITHM_MD_PATH);
-    if (!prettierSuccess) {
-      console.log("使用内置格式化功能...");
-      // 如果Prettier失败，使用原有的格式化功能
-      const lines = readFileSync(ALGORITHM_MD_PATH, "utf-8").split("\n");
-      const formattedLines = formatMarkdownTable(lines);
-      writeFileSync(ALGORITHM_MD_PATH, formattedLines.join("\n"));
-      console.log("文档格式已使用内置功能优化");
-    }
+    // 首先尝试使用markdown-table-prettify专门格式化表格
+    formatWithMarkdownTablePrettify(ALGORITHM_MD_PATH);
   }
-}
-
-// 格式化表格（作为备选方案）
-function formatMarkdownTable(lines) {
-  // 找到表头和分隔行
-  let headerIndex = -1;
-  let separatorIndex = -1;
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes("|") && lines[i].includes("--")) {
-      separatorIndex = i;
-      headerIndex = i - 1;
-      break;
-    }
-  }
-
-  if (headerIndex < 0 || separatorIndex < 0) {
-    return lines; // 没找到表格结构，返回原始内容
-  }
-
-  // 解析表头，计算每列的最大宽度
-  const headerParts = lines[headerIndex].split("|").map((part) => part.trim());
-  const columnWidths = headerParts.map((part) => part.length);
-
-  // 遍历表格数据，更新列宽
-  for (let i = headerIndex + 2; i < lines.length; i++) {
-    if (!lines[i] || !lines[i].includes("|")) continue;
-
-    const rowParts = lines[i].split("|").map((part) => part.trim());
-    for (let j = 0; j < rowParts.length; j++) {
-      if (j < columnWidths.length) {
-        columnWidths[j] = Math.max(columnWidths[j], rowParts[j].length);
-      }
-    }
-  }
-
-  // 重新构建表格
-  const formattedLines = [...lines];
-
-  // 重建分隔行
-  const separatorParts = [];
-  for (let i = 0; i < columnWidths.length; i++) {
-    separatorParts[i] = "-".repeat(columnWidths[i]);
-  }
-  formattedLines[separatorIndex] = "| " + separatorParts.join(" | ") + " |";
-
-  // 格式化表头和数据行
-  formattedLines[headerIndex] = formatTableRow(headerParts, columnWidths);
-
-  for (let i = headerIndex + 2; i < lines.length; i++) {
-    if (!lines[i] || !lines[i].includes("|")) continue;
-
-    const rowParts = lines[i].split("|").map((part) => part.trim());
-    formattedLines[i] = formatTableRow(rowParts, columnWidths);
-  }
-
-  return formattedLines;
-}
-
-// 格式化表格行
-function formatTableRow(parts, columnWidths) {
-  const formattedParts = [];
-
-  for (let i = 0; i < parts.length; i++) {
-    if (i < columnWidths.length) {
-      // 中文字符宽度计算
-      const part = parts[i] || "";
-      const visibleLength = getVisibleLength(part);
-      const padding = columnWidths[i] - visibleLength;
-
-      if (padding > 0) {
-        formattedParts[i] = part + " ".repeat(padding);
-      } else {
-        formattedParts[i] = part;
-      }
-    }
-  }
-
-  return "| " + formattedParts.join(" | ") + " |";
-}
-
-// 计算字符串显示宽度（考虑中文字符占两个位置）
-function getVisibleLength(str) {
-  let length = 0;
-  for (let i = 0; i < str.length; i++) {
-    length += isFullWidthChar(str.charCodeAt(i)) ? 2 : 1;
-  }
-  return length;
-}
-
-// 判断是否为全角字符（中文、日文等）
-function isFullWidthChar(charCode) {
-  return (
-    (charCode >= 0x3000 && charCode <= 0x9fff) || // CJK统一表意文字
-    (charCode >= 0xff00 && charCode <= 0xffef) // 全角ASCII、全角标点
-  );
 }
 
 // 执行主函数
-main();
+main().catch((error) => {
+  console.error("发生错误:", error);
+});
