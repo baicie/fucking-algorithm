@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.9.0",
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/generator": "^7.27.0"
