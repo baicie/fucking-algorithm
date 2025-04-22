@@ -1,10 +1,32 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
-import { execSync } from "child_process";
 import { CliPrettify } from "markdown-table-prettify";
+import { select, confirm } from "@inquirer/prompts";
 
 // 配置项
 const ALGORITHM_MD_PATH = "algorithm.md";
 const ALGORITHM_CPP_DIR = "src/algorithm-cpp";
+
+// 难度选项
+const DIFFICULTY_OPTIONS = [
+  { name: "Easy", value: "Easy" },
+  { name: "Medium", value: "Medium" },
+  { name: "Hard", value: "Hard" },
+];
+
+// 模块选项
+const MODULE_OPTIONS = [
+  { name: "数组", value: "数组" },
+  { name: "链表", value: "链表" },
+  { name: "哈希表", value: "哈希表" },
+  { name: "字符串", value: "字符串" },
+  { name: "双指针", value: "双指针" },
+  { name: "栈与队列", value: "栈与队列" },
+  { name: "二叉树", value: "二叉树" },
+  { name: "回溯算法", value: "回溯算法" },
+  { name: "贪心算法", value: "贪心算法" },
+  { name: "动态规划", value: "动态规划" },
+  { name: "其他", value: "其他" },
+];
 
 // 难度映射表
 const DIFFICULTY_MAP = {
@@ -96,8 +118,32 @@ async function formatWithMarkdownTablePrettify(filePath) {
   }
 }
 
+// 交互式获取题目信息
+async function getProblemInfo(problemNum, problemTitle) {
+  console.log(`\n为题目 ${problemNum}.${problemTitle} 设置分类信息:`);
+
+  // 提供默认值作为参考
+  const defaultDifficulty = getDifficulty(problemNum);
+  const defaultModule = getModule(problemNum);
+
+  // 自定义分类
+  const difficulty = await select({
+    message: "选择题目难度:",
+    choices: DIFFICULTY_OPTIONS,
+    default: defaultDifficulty,
+  });
+
+  const module = await select({
+    message: "选择题目所属模块:",
+    choices: MODULE_OPTIONS,
+    default: defaultModule,
+  });
+
+  return { difficulty, module };
+}
+
 // 更新算法进度表
-function updateAlgorithmMd(newProblems) {
+async function updateAlgorithmMd(newProblems) {
   if (newProblems.length === 0) {
     console.log("没有新的算法题目需要添加");
     return false;
@@ -133,9 +179,8 @@ function updateAlgorithmMd(newProblems) {
 
   // 添加新题目
   const newEntries = [];
-  for (const [problemNum, problemTitle] of newProblems) {
-    const difficulty = getDifficulty(problemNum);
-    const module = getModule(problemNum);
+  for (const [problemNum, problemTitle, problemInfo] of newProblems) {
+    const { difficulty, module } = problemInfo;
 
     const newEntry = `| ${dateStr} | ${module} | ${problemNum}.${problemTitle} | ${difficulty} | ✅ | ❌ | ❌ | —— |`;
     newEntries.push(newEntry);
@@ -157,21 +202,35 @@ async function main() {
   const existingProblems = readAlgorithmMd();
 
   // 扫描算法文件夹
-  const newProblems = [];
   const files = readdirSync(ALGORITHM_CPP_DIR);
+  const newProblemFiles = [];
 
   for (const filename of files) {
     if (filename.endsWith(".cpp")) {
       const problemNum = getProblemNumber(filename);
       if (problemNum && !existingProblems.has(problemNum)) {
         const problemTitle = getProblemTitle(filename);
-        newProblems.push([problemNum, problemTitle]);
+        newProblemFiles.push([problemNum, problemTitle]);
       }
     }
   }
 
+  if (newProblemFiles.length === 0) {
+    console.log("没有新的算法题目需要添加");
+    return;
+  }
+
+  console.log(`发现 ${newProblemFiles.length} 个新题目待添加`);
+
+  // 交互式获取每个题目的分类信息
+  const newProblems = [];
+  for (const [problemNum, problemTitle] of newProblemFiles) {
+    const problemInfo = await getProblemInfo(problemNum, problemTitle);
+    newProblems.push([problemNum, problemTitle, problemInfo]);
+  }
+
   // 更新进度表
-  const hasUpdated = updateAlgorithmMd(newProblems);
+  const hasUpdated = await updateAlgorithmMd(newProblems);
 
   // 格式化文件
   if (
