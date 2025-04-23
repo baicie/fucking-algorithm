@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/liuzhiwei/Desktop/workspeace/git-code/fucking-algorithm/src",
+      "program": "/Users/liuzhiwei/Desktop/workspeace/git-code/fucking-algorithm/src/build/Debug/outDebug"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Vitest - Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    }
+  ]
+}
