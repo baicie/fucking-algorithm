@@ -16,7 +16,11 @@
     "limits": "cpp",
     "stdexcept": "cpp",
     "typeinfo": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "deque": "cpp",
+    "memory_resource": "cpp",
+    "iterator": "cpp",
+    "locale": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "clang",
   "C_Cpp_Runner.cppCompilerPath": "clang++",
