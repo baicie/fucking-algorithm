@@ -2,6 +2,7 @@
     "files.associations": {
         "vector": "cpp",
         "ios": "cpp",
-        "xiosbase": "cpp"
+        "xiosbase": "cpp",
+        "queue": "cpp"
     }
 }
