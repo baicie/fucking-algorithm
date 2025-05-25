@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>BFC 作用示例</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 40px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* 公共样式 */
+        .box {
+            border: 1px solid #333;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+
+        .float {
+            float: left;
+            width: 100px;
+            height: 100px;
+            background-color: #69c;
+            color: white;
+            text-align: center;
+            line-height: 100px;
+            margin-right: 10px;
+        }
+
+        .text {
+            background-color: #eee;
+            padding: 10px;
+        }
+
+        /* 触发 BFC 的容器 */
+        .bfc {
+            overflow: hidden;
+            /* 可改为 display: flow-root; 测试 */
+        }
+
+        /* margin 合并测试 */
+        .margin-box {
+            background: #f9f9f9;
+        }
+
+        .margin-box .child1,
+        .margin-box .child2 {
+            height: 40px;
+            background-color: #ddd;
+        }
+
+        .margin-box .child1 {
+            margin-bottom: 20px;
+        }
+
+        .margin-box .child2 {
+            margin-top: 20px;
+        }
+
+        /* 添加 BFC 避免 margin 合并 */
+        .margin-box.bfc .child1 {
+            overflow: hidden;
+        }
+
+        .container {
+            background: #ccc;
+            margin-top: 50px;
+        }
+
+        .child {
+            margin-top: 30px;
+            height: 50px;
+            background: #69c;
+        }
+
+        .container.bfc {
+            overflow: hidden;
+            /* 触发 BFC，阻止 margin 合并 */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>BFC 的作用演示</h1>
+
+    <h2>1. 清除浮动（BFC 包裹浮动元素）</h2>
+    <div class="box">
+        <strong>未触发 BFC：</strong>
+        <div>
+            <div class="float">浮动</div>
+        </div>
+    </div>
+
+    <div class="box bfc">
+        <strong>触发 BFC（overflow: hidden）：</strong>
+        <div>
+            <div class="float">浮动</div>
+        </div>
+    </div>
+
+    <h2>2. 防止 margin 合并</h2>
+    <h2>未触发 BFC（父子 margin 合并）</h2>
+    <div class="container">
+        <div class="child"></div>
+    </div>
+
+    <h2>触发 BFC（overflow: hidden）</h2>
+    <div class="container bfc">
+        <div class="child"></div>
+    </div>
+
+    <h2>3. 防止浮动元素遮挡后续内容</h2>
+    <div class="box">
+        <strong>未触发 BFC：</strong>
+        <div class="float">浮动</div>
+        <div class="text">我可能被浮动遮挡</div>
+    </div>
+
+    <div class="box bfc">
+        <strong>触发 BFC：</strong>
+        <div class="float">浮动</div>
+        <div class="text">我不会被遮挡了</div>
+    </div>
+
+</body>
+
+</html>
