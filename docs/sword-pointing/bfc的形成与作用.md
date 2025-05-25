@@ -2,11 +2,11 @@
 
 #### BFC 是什么
 
-    bfc全称为block formatting context,中文为`块级格式化上下文`。是一个只有块级盒子参与的独立渲染区域，它规定了内部的会计盒子如何布局，且与区域外部无关
+    bfc全称为block formatting context,中文为`块级格式化上下文`。是一个只有块级盒子参与的独立渲染区域，它规定了内部的块级盒子如何布局，且与区域外部无关
 
 #### BFC 有什么用
 
-- 需要费用浮动元素造成的高度塌陷的问题
+- 修复浮动元素造成的高度塌陷的问题
 - 避免非期望的外边距折叠
 - 实现灵活健壮的自适应布局
 
@@ -15,7 +15,7 @@
 html
 浮动元素 float 取值为 left right
 绝对定位 positon 为 absolute（相对于最近的已定位祖先元素）fixed
-行内块于是怒 display inline-block
+行内块布局 display inline-block
 表格布局 display table table-cell table-caption
 overflow 不为 visiable
 弹性盒子容器 display flex inline-flex
