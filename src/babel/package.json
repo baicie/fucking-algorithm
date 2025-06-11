@@ -9,14 +9,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.9.0",
+  "packageManager": "pnpm@10.12.1",
   "dependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/generator": "^7.27.0"
+    "@babel/core": "^7.27.4",
+    "@babel/generator": "^7.27.5"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-jsx": "^7.25.9",
-    "@babel/types": "^7.27.0",
+    "@babel/plugin-syntax-jsx": "^7.27.1",
+    "@babel/types": "^7.27.6",
     "@types/babel__core": "^7.20.5"
   }
 }
