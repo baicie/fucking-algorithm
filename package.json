@@ -14,7 +14,8 @@
     "test:ui": "vitest --ui",
     "algo": "node ./scripts/update_algorithm_progress.js",
     "daily": "node ./scripts/update_daily_study.js",
-    "sid": "node scripts/generate-sidebar.js"
+    "sid": "node scripts/generate-sidebar.js",
+    "commit": "node scripts/auto-commit.js"
   },
   "keywords": [],
   "author": "",
