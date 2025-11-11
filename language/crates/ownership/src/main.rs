@@ -1,0 +1,31 @@
+// fn main() {
+//     let mut s = String::from("hello world");
+
+//     change(&mut s);
+
+//     println!("string is: {}", s);
+// }
+
+// fn change(some_string: &mut String) {
+//     some_string.push_str("hello world");
+// }
+
+fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+
+fn main() {
+    let mut s = String::from("hello world");
+
+    let word = first_word(&s);
+
+    s.clear();
+}
